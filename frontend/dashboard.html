@@ -658,49 +658,49 @@ canvas { width: 100% !important; }
 
     <div class="nav">
       <div class="nav-section-label">Monitor</div>
-      <a href="#" class="nav-item active">
+      <a href="#overview-top" class="nav-item active" data-scroll-target="overview-top">
         <div class="nav-icon">◈</div>
         Overview
       </a>
-      <a href="#" class="nav-item">
+      <a href="#panel-live-alerts" class="nav-item" data-scroll-target="panel-live-alerts">
         <div class="nav-icon">⊹</div>
         Live Stream
         <span class="nav-badge">12</span>
       </a>
-      <a href="#" class="nav-item">
+      <a href="#panel-trend-map" class="nav-item" data-scroll-target="panel-trend-map">
         <div class="nav-icon">⊕</div>
         Trend Map
       </a>
 
       <div class="nav-section-label">Detect</div>
-      <a href="#" class="nav-item">
+      <a href="#panel-bot-accounts" class="nav-item" data-scroll-target="panel-bot-accounts">
         <div class="nav-icon">◉</div>
         Bot Accounts
         <span class="nav-badge">3</span>
       </a>
-      <a href="#" class="nav-item">
+      <a href="#panel-active-trends" class="nav-item" data-scroll-target="panel-active-trends">
         <div class="nav-icon">⋈</div>
         Coordinated
       </a>
-      <a href="#" class="nav-item">
+      <a href="#panel-platform-sources" class="nav-item" data-scroll-target="panel-platform-sources">
         <div class="nav-icon">⚑</div>
         Misinformation
       </a>
 
       <div class="nav-section-label">System</div>
-      <a href="#" class="nav-item">
+      <a href="#panel-ci-cd" class="nav-item" data-scroll-target="panel-ci-cd">
         <div class="nav-icon">⟳</div>
         CI/CD Pipeline
       </a>
-      <a href="#" class="nav-item">
+      <a href="#panel-ci-cd" class="nav-item" data-scroll-target="panel-ci-cd">
         <div class="nav-icon">✦</div>
         Data Validation
       </a>
-      <a href="#" class="nav-item">
+      <a href="#panel-risk-distribution" class="nav-item" data-scroll-target="panel-risk-distribution">
         <div class="nav-icon">△</div>
         Model Drift
       </a>
-      <a href="#" class="nav-item">
+      <a href="#panel-settings" class="nav-item" data-scroll-target="panel-settings">
         <div class="nav-icon">⚙</div>
         Settings
       </a>
@@ -741,7 +741,7 @@ canvas { width: 100% !important; }
     </div>
 
     <!-- Content -->
-    <div class="content">
+    <div class="content" id="overview-top">
 
       <!-- Metric cards -->
       <div class="row-header">
@@ -778,7 +778,7 @@ canvas { width: 100% !important; }
 
       <!-- Chart + Alerts -->
       <div class="grid-2">
-        <div class="card">
+        <div class="card" id="panel-trend-map">
           <div class="card-head">
             <div>
               <div class="card-title">Inorganic Activity Volume</div>
@@ -796,7 +796,7 @@ canvas { width: 100% !important; }
           </div>
         </div>
 
-        <div class="card">
+        <div class="card" id="panel-live-alerts">
           <div class="card-head">
             <div>
               <div class="card-title">Live Alerts</div>
@@ -810,13 +810,13 @@ canvas { width: 100% !important; }
 
       <!-- Trend table + right col -->
       <div class="grid-2">
-        <div class="card">
+        <div class="card" id="panel-active-trends">
           <div class="card-head">
             <div>
               <div class="card-title">Active Trends</div>
               <div class="card-sub">Sorted by inorganic score</div>
             </div>
-            <button style="padding:5px 11px;background:var(--ink3);border:1px solid var(--border2);border-radius:7px;color:var(--muted2);font-family:var(--body);font-size:11px;cursor:pointer;">Export CSV</button>
+            <button id="export-csv-btn" style="padding:5px 11px;background:var(--ink3);border:1px solid var(--border2);border-radius:7px;color:var(--muted2);font-family:var(--body);font-size:11px;cursor:pointer;">Export CSV</button>
           </div>
           <div style="padding:0">
             <table class="data-table">
@@ -835,7 +835,7 @@ canvas { width: 100% !important; }
 
         <div class="col-stack">
           <!-- Bot meter -->
-          <div class="card">
+          <div class="card" id="panel-bot-accounts">
             <div class="card-head">
               <div>
                 <div class="card-title">Bot Score Meter</div>
@@ -848,7 +848,7 @@ canvas { width: 100% !important; }
           </div>
 
           <!-- Platform breakdown -->
-          <div class="card">
+          <div class="card" id="panel-platform-sources">
             <div class="card-head">
               <div>
                 <div class="card-title">Platform Sources</div>
@@ -864,7 +864,7 @@ canvas { width: 100% !important; }
 
       <!-- Pipeline + Donut -->
       <div class="grid-2b" style="margin-bottom:0">
-        <div class="card">
+        <div class="card" id="panel-ci-cd">
           <div class="card-head">
             <div>
               <div class="card-title">CI/CD Pipeline</div>
@@ -875,7 +875,7 @@ canvas { width: 100% !important; }
           <div class="pipeline-list" id="pipeline-list"></div>
         </div>
 
-        <div class="card">
+        <div class="card" id="panel-risk-distribution">
           <div class="card-head">
             <div>
               <div class="card-title">Risk Distribution</div>
@@ -908,6 +908,48 @@ canvas { width: 100% !important; }
         </div>
       </div>
 
+      <!-- Settings -->
+      <div class="card" id="panel-settings" style="margin-top:16px">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Settings</div>
+            <div class="card-sub">Dashboard behavior and navigation</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">
+            <div style="padding:12px;background:var(--ink3);border:1px solid var(--border);border-radius:8px">
+              <div style="font-size:11px;font-family:var(--mono);color:var(--muted);margin-bottom:8px">Auto Refresh</div>
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+                <input id="setting-auto-refresh" type="checkbox" checked />
+                Enable live auto-refresh
+              </label>
+            </div>
+            <div style="padding:12px;background:var(--ink3);border:1px solid var(--border);border-radius:8px">
+              <div style="font-size:11px;font-family:var(--mono);color:var(--muted);margin-bottom:8px">Refresh Interval</div>
+              <select id="setting-refresh-interval" style="width:100%;padding:8px;background:var(--ink2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--body)">
+                <option value="5000">Every 5 seconds</option>
+                <option value="9000" selected>Every 9 seconds</option>
+                <option value="15000">Every 15 seconds</option>
+                <option value="30000">Every 30 seconds</option>
+              </select>
+            </div>
+            <div style="padding:12px;background:var(--ink3);border:1px solid var(--border);border-radius:8px">
+              <div style="font-size:11px;font-family:var(--mono);color:var(--muted);margin-bottom:8px">Trend Rows</div>
+              <select id="setting-trend-limit" style="width:100%;padding:8px;background:var(--ink2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-family:var(--body)">
+                <option value="8">Top 8</option>
+                <option value="12" selected>Top 12</option>
+                <option value="20">Top 20</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
+            <button id="settings-reset-btn" style="padding:7px 11px;background:var(--ink3);border:1px solid var(--border2);border-radius:7px;color:var(--muted2);font-family:var(--body);font-size:12px;cursor:pointer;">Reset Settings</button>
+            <span id="settings-status" style="font-size:11px;font-family:var(--mono);color:var(--teal)">Settings active</span>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main -->
 </div><!-- /app -->
@@ -923,6 +965,17 @@ const TRENDS = [
   { kw: "TechNews",     vol: "14.8K", risk: "medium", score: 0.44, color: "#f0b429" },
   { kw: "ClimateAction",vol: "9.3K",  risk: "low",    score: 0.18, color: "#1de5b4" },
   { kw: "WorldCup2026", vol: "7.1K",  risk: "low",    score: 0.12, color: "#1de5b4" },
+  { kw: "PolicyShift",  vol: "26.4K", risk: "high",   score: 0.82, color: "#f0506a" },
+  { kw: "MarketCrash",  vol: "22.6K", risk: "high",   score: 0.77, color: "#f0506a" },
+  { kw: "HealthAlert",  vol: "18.9K", risk: "medium", score: 0.56, color: "#f0b429" },
+  { kw: "SpaceLaunch",  vol: "16.3K", risk: "medium", score: 0.47, color: "#f0b429" },
+  { kw: "CityPowerOut", vol: "11.4K", risk: "medium", score: 0.42, color: "#f0b429" },
+  { kw: "EduReform",    vol: "10.8K", risk: "low",    score: 0.29, color: "#1de5b4" },
+  { kw: "TravelHack",   vol: "8.7K",  risk: "low",    score: 0.21, color: "#1de5b4" },
+  { kw: "FoodRecall",   vol: "7.9K",  risk: "low",    score: 0.16, color: "#1de5b4" },
+  { kw: "WildfireWatch",vol: "24.2K", risk: "high",   score: 0.73, color: "#f0506a" },
+  { kw: "JobsReport",   vol: "13.1K", risk: "medium", score: 0.40, color: "#f0b429" },
+  { kw: "OpenSourceDay",vol: "6.9K",  risk: "low",    score: 0.14, color: "#1de5b4" },
 ];
 
 const BOTS = [
@@ -956,9 +1009,19 @@ const PLATFORMS = [
 ];
 
 // ── Renderers ─────────────────────────────────────────────────
-function renderTrends(filter = "") {
+let currentSearchTerm = "";
+let trendRowLimit = 12;
+let autoRefreshEnabled = true;
+let refreshIntervalMs = 9000;
+let refreshTimer = null;
+let filteredTrendRows = [];
+
+function renderTrends(filter = currentSearchTerm) {
   const body = document.getElementById("trend-tbody");
-  const data = TRENDS.filter(t => t.kw.toLowerCase().includes(filter.toLowerCase()));
+  const data = TRENDS
+    .filter(t => t.kw.toLowerCase().includes(filter.toLowerCase()))
+    .slice(0, trendRowLimit);
+  filteredTrendRows = data;
   body.innerHTML = data.map((t, i) => `
     <tr class="${i===0?'new-data':''}">
       <td><span class="kw-cell"><span class="kw-hash">#</span>${t.kw}</span></td>
@@ -972,6 +1035,45 @@ function renderTrends(filter = "") {
       </td>
     </tr>
   `).join('');
+}
+
+function exportTrendsAsCsv() {
+  const rows = filteredTrendRows.length ? filteredTrendRows : TRENDS.slice(0, trendRowLimit);
+  const headers = ["keyword", "volume", "risk", "score_percent", "color"];
+  const lines = rows.map(row => [row.kw, row.vol, row.risk, Math.round(row.score * 100), row.color]);
+  const csv = [headers, ...lines]
+    .map(line => line.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `trendguard-active-trends-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function stopAutoRefresh() {
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+  }
+}
+
+function startAutoRefresh() {
+  stopAutoRefresh();
+  if (autoRefreshEnabled) {
+    refreshTimer = setInterval(refreshData, refreshIntervalMs);
+  }
+}
+
+function setSettingsStatus(message) {
+  const status = document.getElementById("settings-status");
+  if (!status) return;
+  status.textContent = message;
 }
 
 function renderBots() {
@@ -1063,7 +1165,6 @@ function buildChart() {
 
 // ── Live sim ──────────────────────────────────────────────────
 function refreshData() {
-  const now = new Date();
   const t = document.getElementById("m-trends");
   const f = document.getElementById("m-flagged");
   if (t) t.textContent = (parseInt(t.textContent.replace(/,/g,'')) + Math.floor(Math.random()*60-10)).toLocaleString();
@@ -1073,24 +1174,24 @@ function refreshData() {
     ALERTS.unshift({
       icon: "⚡", type: "warn",
       title: "New spike detected",
-      desc: `#${TRENDS[Math.floor(Math.random()*3)].kw} volume +${Math.floor(Math.random()*200+50)} in 5m`,
+      desc: `#${TRENDS[Math.floor(Math.random()*6)].kw} volume +${Math.floor(Math.random()*200+50)} in 5m`,
       time: "just now"
     });
     if (ALERTS.length > 5) ALERTS.pop();
     renderAlerts();
   }
 
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
   // Subtle refresh feedback
   const btn = document.querySelector('.btn-refresh');
   btn.textContent = '✓ Updated';
   setTimeout(() => { btn.innerHTML = '↻ Refresh'; }, 1500);
 }
 
-setInterval(refreshData, 9000);
-
 // Search
-document.getElementById("search-input").addEventListener("input", e => renderTrends(e.target.value));
+document.getElementById("search-input").addEventListener("input", e => {
+  currentSearchTerm = e.target.value;
+  renderTrends(currentSearchTerm);
+});
 
 // Chip toggle
 document.querySelectorAll('.chip').forEach(chip => {
@@ -1100,6 +1201,96 @@ document.querySelectorAll('.chip').forEach(chip => {
   });
 });
 
+// Sidebar nav scroll + active state
+const sidebarNavItems = document.querySelectorAll('.nav-item[data-scroll-target]');
+const contentScroller = document.querySelector('.content');
+
+function setActiveSidebarByTarget(targetId) {
+  sidebarNavItems.forEach(navItem => {
+    navItem.classList.toggle('active', navItem.getAttribute('data-scroll-target') === targetId);
+  });
+}
+
+sidebarNavItems.forEach(item => {
+  item.addEventListener('click', (event) => {
+    event.preventDefault();
+    const targetId = item.getAttribute('data-scroll-target');
+    const target = document.getElementById(targetId);
+    if (!target) return;
+
+    setActiveSidebarByTarget(targetId);
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+// Auto-highlight sidebar as sections enter view.
+const observedPanels = [
+  'overview-top',
+  'panel-live-alerts',
+  'panel-trend-map',
+  'panel-bot-accounts',
+  'panel-active-trends',
+  'panel-platform-sources',
+  'panel-ci-cd',
+  'panel-risk-distribution',
+  'panel-settings',
+];
+
+const panelObserver = new IntersectionObserver(
+  entries => {
+    const visible = entries
+      .filter(entry => entry.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (visible?.target?.id) {
+      setActiveSidebarByTarget(visible.target.id);
+    }
+  },
+  {
+    root: contentScroller,
+    threshold: [0.3, 0.5, 0.7],
+    rootMargin: '-10% 0px -55% 0px',
+  }
+);
+
+observedPanels.forEach(id => {
+  const panel = document.getElementById(id);
+  if (panel) panelObserver.observe(panel);
+});
+
+// Export trends as CSV
+document.getElementById("export-csv-btn").addEventListener("click", exportTrendsAsCsv);
+
+// Settings actions
+document.getElementById("setting-auto-refresh").addEventListener("change", event => {
+  autoRefreshEnabled = event.target.checked;
+  startAutoRefresh();
+  setSettingsStatus(autoRefreshEnabled ? "Auto-refresh enabled" : "Auto-refresh paused");
+});
+
+document.getElementById("setting-refresh-interval").addEventListener("change", event => {
+  refreshIntervalMs = Number(event.target.value);
+  startAutoRefresh();
+  setSettingsStatus(`Refresh interval set to ${Math.round(refreshIntervalMs / 1000)}s`);
+});
+
+document.getElementById("setting-trend-limit").addEventListener("change", event => {
+  trendRowLimit = Number(event.target.value);
+  renderTrends(currentSearchTerm);
+  setSettingsStatus(`Trend row limit set to ${trendRowLimit}`);
+});
+
+document.getElementById("settings-reset-btn").addEventListener("click", () => {
+  autoRefreshEnabled = true;
+  refreshIntervalMs = 9000;
+  trendRowLimit = 12;
+  document.getElementById("setting-auto-refresh").checked = true;
+  document.getElementById("setting-refresh-interval").value = "9000";
+  document.getElementById("setting-trend-limit").value = "12";
+  startAutoRefresh();
+  renderTrends(currentSearchTerm);
+  setSettingsStatus("Settings reset to defaults");
+});
+
 // ── Init ──────────────────────────────────────────────────────
 renderTrends();
 renderBots();
@@ -1107,6 +1298,7 @@ renderAlerts();
 renderPipeline();
 renderPlatforms();
 buildChart();
+startAutoRefresh();
 </script>
 </body>
 </html>
