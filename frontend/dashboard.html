@@ -1178,6 +1178,7 @@ let regionLiveTimer = null;
 let filteredTrendRows = [];
 let mainChart = null;
 let liveStreamCount = 12;
+let selectedRange = "24h"; // "1h" | "24h" | "7d"
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
@@ -1192,6 +1193,11 @@ function updateSidebarBadges() {
   if (botBadge) botBadge.textContent = String(BOTS.length);
   const liveBadge = document.getElementById("live-stream-badge");
   if (liveBadge) liveBadge.textContent = String(liveStreamCount);
+}
+
+function setChartSubtitle(text) {
+  const subEl = document.querySelector("#panel-trend-map .card-sub");
+  if (subEl) subEl.textContent = text;
 }
 
 function renderTrends(filter = currentSearchTerm) {
@@ -1363,15 +1369,54 @@ function updateRegionRiskScores() {
 }
 
 // ── Chart ─────────────────────────────────────────────────────
-function buildChart() {
-  const labels = Array.from({length:24}, (_,i) => {
-    const h = (new Date().getHours() - 23 + i + 24) % 24;
-    return `${String(h).padStart(2,'0')}:00`;
-  });
-  const organic = [420,390,380,410,450,500,620,710,830,920,880,860,840,810,790,750,720,680,660,640,630,610,580,560].map(v=>v+Math.floor(Math.random()*30-15));
-  const bot = [45,38,41,60,72,85,148,190,310,402,380,355,320,290,270,240,220,195,180,170,165,155,140,130].map(v=>v+Math.floor(Math.random()*15-7));
+function buildChart(range = selectedRange) {
+  const now = new Date();
+  let labels = [];
+  let organicSeed = [];
+  let botSeed = [];
+
+  if (range === "1h") {
+    // 60 minutes, 5-min buckets.
+    const points = 12;
+    labels = Array.from({ length: points }, (_, i) => {
+      const d = new Date(now.getTime() - (points - 1 - i) * 5 * 60_000);
+      return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+    });
+    organicSeed = [420, 390, 380, 410, 450, 500, 620, 710, 830, 920, 880, 860];
+    botSeed = [45, 38, 41, 60, 72, 85, 148, 190, 310, 402, 380, 355];
+    setChartSubtitle("Posts flagged per 5 minutes · rolling 1h");
+  } else if (range === "7d") {
+    // 7 days, daily buckets.
+    const points = 7;
+    labels = Array.from({ length: points }, (_, i) => {
+      const d = new Date(now.getTime() - (points - 1 - i) * 24 * 60 * 60_000);
+      const m = d.toLocaleString("en-US", { month: "short" });
+      return `${m} ${d.getDate()}`;
+    });
+    organicSeed = [5200, 4980, 5450, 6120, 6890, 6480, 6320];
+    botSeed = [560, 520, 610, 780, 920, 860, 810];
+    setChartSubtitle("Posts flagged per day · rolling 7d");
+  } else {
+    // 24h default, hourly buckets.
+    const points = 24;
+    labels = Array.from({ length: points }, (_, i) => {
+      const h = (now.getHours() - (points - 1 - i) + 24) % 24;
+      return `${String(h).padStart(2, "0")}:00`;
+    });
+    organicSeed = [420,390,380,410,450,500,620,710,830,920,880,860,840,810,790,750,720,680,660,640,630,610,580,560];
+    botSeed = [45,38,41,60,72,85,148,190,310,402,380,355,320,290,270,240,220,195,180,170,165,155,140,130];
+    setChartSubtitle("Posts flagged per hour · rolling 24h");
+  }
+
+  const organic = organicSeed.map(v => v + Math.floor(Math.random() * Math.max(6, v * 0.03) - Math.max(3, v * 0.015)));
+  const bot = botSeed.map(v => v + Math.floor(Math.random() * Math.max(6, v * 0.03) - Math.max(3, v * 0.015)));
 
   const ctx = document.getElementById("main-chart");
+  if (mainChart) {
+    mainChart.destroy();
+    mainChart = null;
+  }
+
   mainChart = new Chart(ctx, {
     type: "line",
     data: {
@@ -1407,10 +1452,13 @@ function tickChart() {
   const bot = mainChart.data.datasets[1].data;
   const lastOrg = org[org.length - 1] ?? 500;
   const lastBot = bot[bot.length - 1] ?? 120;
-  org.push(Math.max(220, Math.round(lastOrg + (Math.random() * 80 - 40))));
-  bot.push(Math.max(20, Math.round(lastBot + (Math.random() * 35 - 18))));
-  if (org.length > 24) org.shift();
-  if (bot.length > 24) bot.shift();
+  const scale = selectedRange === "7d" ? 1.0 : selectedRange === "1h" ? 0.4 : 0.6;
+  org.push(Math.max(220, Math.round(lastOrg + (Math.random() * 80 - 40) * scale)));
+  bot.push(Math.max(20, Math.round(lastBot + (Math.random() * 35 - 18) * scale)));
+
+  const maxLen = selectedRange === "1h" ? 12 : selectedRange === "7d" ? 7 : 24;
+  if (org.length > maxLen) org.shift();
+  if (bot.length > maxLen) bot.shift();
   mainChart.update("none");
 }
 
@@ -1556,6 +1604,11 @@ document.querySelectorAll('.chip').forEach(chip => {
   chip.addEventListener('click', () => {
     document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
     chip.classList.add('active');
+    const text = (chip.textContent || "").trim();
+    if (text === "1h" || text === "24h" || text === "7d") {
+      selectedRange = text;
+      buildChart(selectedRange);
+    }
   });
 });
 
@@ -1658,7 +1711,7 @@ renderAlerts();
 renderPipeline();
 renderPlatforms();
 renderRegionMap();
-buildChart();
+buildChart(selectedRange);
 updateRiskDistribution();
 updateSidebarBadges();
 startAutoRefresh();
