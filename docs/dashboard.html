@@ -626,26 +626,13 @@ canvas { width: 100% !important; }
   overflow: hidden;
   min-height: 280px;
 }
-.region-map-img {
+.region-map-svg {
   position: absolute;
   inset: 10px;
   width: calc(100% - 20px);
   height: calc(100% - 20px);
-  object-fit: contain;
-  object-position: center center;
-  border-radius: 10px;
-  opacity: 0.95;
-  display: block;
-  background: transparent;
-  z-index: 1;
-}
-.region-map-svg {
-  position: absolute;
-  inset: 14px;
-  width: calc(100% - 28px);
-  height: calc(100% - 28px);
   pointer-events: none;
-  z-index: 2;
+  z-index: 1;
 }
 .region-dot {
   stroke: rgba(255,255,255,0.65);
@@ -1029,8 +1016,8 @@ canvas { width: 100% !important; }
         <div class="card-body">
           <div class="region-map-wrap">
             <div class="region-map-stage">
-              <img class="region-map-img" src="world-map-outline.png" alt="World map outline">
               <svg class="region-map-svg" viewBox="0 0 640 280" xmlns="http://www.w3.org/2000/svg">
+                <image href="world-map-outline.png" x="0" y="0" width="640" height="280" preserveAspectRatio="xMidYMid meet" opacity="0.95"></image>
                 <g id="region-dots-layer"></g>
               </svg>
             </div>
@@ -1165,7 +1152,7 @@ const REGIONS = [
   { key: "middle-east", name: "Middle East", sub: "GCC + Levant", x: 382, y: 124, risk: 63 },
   { key: "south-asia", name: "South Asia", sub: "IN, PK, BD", x: 430, y: 140, risk: 76 },
   { key: "east-asia", name: "East Asia", sub: "CN, JP, KR", x: 487, y: 114, risk: 71 },
-  { key: "oceania", name: "Oceania", sub: "AU, NZ", x: 538, y: 214, risk: 46 },
+  { key: "oceania", name: "Oceania", sub: "AU, NZ", x: 505, y: 212, risk: 46 },
 ];
 
 // ── Renderers ─────────────────────────────────────────────────
