@@ -607,10 +607,11 @@ canvas { width: 100% !important; height: 100% !important; display: block; }
   gap: 8px;
   padding: 5px 0;
   font-size: 12px;
+  justify-content: space-between;
 }
 .dl-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .dl-name { flex: 1; color: var(--muted2); }
-.dl-val { font-family: var(--mono); font-size: 11px; color: var(--text); }
+.dl-val { font-family: var(--mono); font-size: 11px; color: var(--text); min-width: 82px; text-align: right; }
 
 /* Region risk map */
 .region-map-wrap {
@@ -763,7 +764,7 @@ canvas { width: 100% !important; height: 100% !important; display: block; }
       <a href="#panel-live-alerts" class="nav-item" data-scroll-target="panel-live-alerts">
         <div class="nav-icon">⊹</div>
         Live Stream
-        <span class="nav-badge">12</span>
+        <span class="nav-badge" id="live-stream-badge">12</span>
       </a>
       <a href="#panel-region-map" class="nav-item" data-scroll-target="panel-region-map">
         <div class="nav-icon">⊕</div>
@@ -982,24 +983,24 @@ canvas { width: 100% !important; height: 100% !important; display: block; }
           </div>
           <div class="card-body">
             <div class="donut-wrap">
-              <svg class="donut-svg" viewBox="0 0 90 90">
+              <svg class="donut-svg" viewBox="0 0 90 90" aria-label="Risk distribution donut">
                 <circle cx="45" cy="45" r="35" fill="none" stroke="var(--ink4)" stroke-width="10"/>
                 <!-- High: 58% -->
-                <circle cx="45" cy="45" r="35" fill="none" stroke="var(--rose)" stroke-width="10"
+                <circle id="donut-high" cx="45" cy="45" r="35" fill="none" stroke="var(--rose)" stroke-width="10"
                   stroke-dasharray="127 93" stroke-dashoffset="0" transform="rotate(-90 45 45)"/>
                 <!-- Medium: 28% -->
-                <circle cx="45" cy="45" r="35" fill="none" stroke="var(--amber)" stroke-width="10"
+                <circle id="donut-med" cx="45" cy="45" r="35" fill="none" stroke="var(--amber)" stroke-width="10"
                   stroke-dasharray="61 159" stroke-dashoffset="-127" transform="rotate(-90 45 45)"/>
                 <!-- Low: 14% -->
-                <circle cx="45" cy="45" r="35" fill="none" stroke="var(--teal)" stroke-width="10"
+                <circle id="donut-low" cx="45" cy="45" r="35" fill="none" stroke="var(--teal)" stroke-width="10"
                   stroke-dasharray="31 189" stroke-dashoffset="-188" transform="rotate(-90 45 45)"/>
-                <text x="45" y="44" text-anchor="middle" fill="var(--text)" font-family="'Clash Display',sans-serif" font-size="14" font-weight="700">312</text>
+                <text id="donut-total" x="45" y="44" text-anchor="middle" fill="var(--text)" font-family="'Clash Display',sans-serif" font-size="14" font-weight="700">312</text>
                 <text x="45" y="56" text-anchor="middle" fill="var(--muted)" font-family="'DM Mono',monospace" font-size="7">flagged</text>
               </svg>
               <div class="donut-legend">
-                <div class="dl-row"><div class="dl-dot" style="background:var(--rose)"></div><div class="dl-name">High risk</div><div class="dl-val">181 (58%)</div></div>
-                <div class="dl-row"><div class="dl-dot" style="background:var(--amber)"></div><div class="dl-name">Medium risk</div><div class="dl-val">87 (28%)</div></div>
-                <div class="dl-row"><div class="dl-dot" style="background:var(--teal)"></div><div class="dl-name">Low risk</div><div class="dl-val">44 (14%)</div></div>
+                <div class="dl-row"><div style="display:flex;align-items:center;gap:8px"><div class="dl-dot" style="background:var(--rose)"></div><div class="dl-name">High risk</div></div><div class="dl-val" id="risk-val-high">181 (58%)</div></div>
+                <div class="dl-row"><div style="display:flex;align-items:center;gap:8px"><div class="dl-dot" style="background:var(--amber)"></div><div class="dl-name">Medium risk</div></div><div class="dl-val" id="risk-val-med">87 (28%)</div></div>
+                <div class="dl-row"><div style="display:flex;align-items:center;gap:8px"><div class="dl-dot" style="background:var(--teal)"></div><div class="dl-name">Low risk</div></div><div class="dl-val" id="risk-val-low">44 (14%)</div></div>
               </div>
             </div>
           </div>
@@ -1175,6 +1176,23 @@ let refreshIntervalMs = 9000;
 let refreshTimer = null;
 let regionLiveTimer = null;
 let filteredTrendRows = [];
+let mainChart = null;
+let liveStreamCount = 12;
+
+function clamp(n, min, max) {
+  return Math.max(min, Math.min(max, n));
+}
+
+function maybe(n = 0.5) {
+  return Math.random() < n;
+}
+
+function updateSidebarBadges() {
+  const botBadge = document.getElementById("bot-count-badge");
+  if (botBadge) botBadge.textContent = String(BOTS.length);
+  const liveBadge = document.getElementById("live-stream-badge");
+  if (liveBadge) liveBadge.textContent = String(liveStreamCount);
+}
 
 function renderTrends(filter = currentSearchTerm) {
   const body = document.getElementById("trend-tbody");
@@ -1243,8 +1261,7 @@ function setSettingsStatus(message) {
 }
 
 function renderBots() {
-  const badge = document.getElementById("bot-count-badge");
-  if (badge) badge.textContent = String(BOTS.length);
+  updateSidebarBadges();
   document.getElementById("bot-list").innerHTML = BOTS.map(b => `
     <div class="bot-row">
       <div class="bot-av" style="background:${b.color}18;color:${b.color}">${b.init}</div>
@@ -1268,6 +1285,12 @@ function renderAlerts() {
       </div>
     </div>
   `).join('');
+
+  const badge = document.getElementById("alert-count-badge");
+  if (badge) {
+    const critical = ALERTS.filter(a => a.type === "danger").length;
+    badge.textContent = `${critical} critical`;
+  }
 }
 
 function renderPipeline() {
@@ -1313,7 +1336,10 @@ function renderRegionMap() {
   dotsLayer.innerHTML = REGIONS.map(region => {
     const color = riskColorByScore(region.risk);
     const radius = 6 + ((region.risk - 30) / 70) * 5;
-    return `<circle class="region-dot live" cx="${region.x}" cy="${region.y}" r="${radius.toFixed(2)}" fill="${color}" fill-opacity="0.92"></circle>`;
+    // Clamp to viewBox to avoid dots drifting outside map bounds.
+    const x = clamp(region.x, 12, 628);
+    const y = clamp(region.y, 12, 268);
+    return `<circle class="region-dot live" cx="${x}" cy="${y}" r="${radius.toFixed(2)}" fill="${color}" fill-opacity="0.92"></circle>`;
   }).join("");
 
   const sorted = [...REGIONS].sort((a, b) => b.risk - a.risk);
@@ -1345,7 +1371,8 @@ function buildChart() {
   const organic = [420,390,380,410,450,500,620,710,830,920,880,860,840,810,790,750,720,680,660,640,630,610,580,560].map(v=>v+Math.floor(Math.random()*30-15));
   const bot = [45,38,41,60,72,85,148,190,310,402,380,355,320,290,270,240,220,195,180,170,165,155,140,130].map(v=>v+Math.floor(Math.random()*15-7));
 
-  new Chart(document.getElementById("main-chart"), {
+  const ctx = document.getElementById("main-chart");
+  mainChart = new Chart(ctx, {
     type: "line",
     data: {
       labels,
@@ -1374,6 +1401,115 @@ function buildChart() {
   });
 }
 
+function tickChart() {
+  if (!mainChart) return;
+  const org = mainChart.data.datasets[0].data;
+  const bot = mainChart.data.datasets[1].data;
+  const lastOrg = org[org.length - 1] ?? 500;
+  const lastBot = bot[bot.length - 1] ?? 120;
+  org.push(Math.max(220, Math.round(lastOrg + (Math.random() * 80 - 40))));
+  bot.push(Math.max(20, Math.round(lastBot + (Math.random() * 35 - 18))));
+  if (org.length > 24) org.shift();
+  if (bot.length > 24) bot.shift();
+  mainChart.update("none");
+}
+
+function computeRiskDistribution() {
+  // Use visible (filtered) trend slice for a stable-feeling distribution.
+  const slice = (filteredTrendRows.length ? filteredTrendRows : TRENDS.slice(0, trendRowLimit));
+  const high = slice.filter(t => t.risk === "high").length;
+  const med = slice.filter(t => t.risk === "medium").length;
+  const low = slice.filter(t => t.risk === "low").length;
+  const total = Math.max(1, high + med + low);
+  return { high, med, low, total };
+}
+
+function updateRiskDistribution() {
+  const { high, med, low, total } = computeRiskDistribution();
+  const pHigh = high / total;
+  const pMed = med / total;
+  const pLow = low / total;
+
+  const r = 35;
+  const C = 2 * Math.PI * r;
+  const highLen = Math.max(0.0001, pHigh * C);
+  const medLen = Math.max(0.0001, pMed * C);
+  const lowLen = Math.max(0.0001, pLow * C);
+
+  const donutHigh = document.getElementById("donut-high");
+  const donutMed = document.getElementById("donut-med");
+  const donutLow = document.getElementById("donut-low");
+  if (donutHigh && donutMed && donutLow) {
+    donutHigh.setAttribute("stroke-dasharray", `${highLen.toFixed(2)} ${(C - highLen).toFixed(2)}`);
+    donutHigh.setAttribute("stroke-dashoffset", `0`);
+    donutMed.setAttribute("stroke-dasharray", `${medLen.toFixed(2)} ${(C - medLen).toFixed(2)}`);
+    donutMed.setAttribute("stroke-dashoffset", `${(-highLen).toFixed(2)}`);
+    donutLow.setAttribute("stroke-dasharray", `${lowLen.toFixed(2)} ${(C - lowLen).toFixed(2)}`);
+    donutLow.setAttribute("stroke-dashoffset", `${(-(highLen + medLen)).toFixed(2)}`);
+  }
+
+  const totalEl = document.getElementById("donut-total");
+  if (totalEl) totalEl.textContent = String(total);
+
+  const hiEl = document.getElementById("risk-val-high");
+  const medEl = document.getElementById("risk-val-med");
+  const lowEl = document.getElementById("risk-val-low");
+  if (hiEl) hiEl.textContent = `${high} (${Math.round(pHigh * 100)}%)`;
+  if (medEl) medEl.textContent = `${med} (${Math.round(pMed * 100)}%)`;
+  if (lowEl) lowEl.textContent = `${low} (${Math.round(pLow * 100)}%)`;
+}
+
+function randomBotHandle() {
+  const a = ["news", "trend", "viral", "daily", "quick", "pulse", "signal", "info", "media", "update", "brief"];
+  const b = ["hub", "wire", "loop", "stack", "stream", "digest", "matrix", "engine", "relay", "radar", "feed"];
+  const n = String(Math.floor(Math.random() * 900 + 100));
+  return `@${a[Math.floor(Math.random() * a.length)]}_${b[Math.floor(Math.random() * b.length)]}${maybe(0.55) ? "_" + n : ""}`;
+}
+
+function maybeCreateBot() {
+  if (!maybe(0.25)) return;
+  const score = clamp(Math.random() * 0.55 + 0.4, 0.05, 0.98);
+  const color = score >= 0.7 ? "#f0506a" : score >= 0.45 ? "#f0b429" : "#1de5b4";
+  const flagsPool = [
+    "recent_username_change", "burst_posts", "link_farm", "shared_media_hash", "uniform_intervals",
+    "high_text_sim", "reply_swarm", "follow_churn", "no_bio", "extreme_follow_ratio"
+  ];
+  const flags = Array.from({ length: 2 }, () => flagsPool[Math.floor(Math.random() * flagsPool.length)]).join(" · ");
+  const handle = randomBotHandle();
+  const init = handle.replace("@", "").split(/[_0-9]/).filter(Boolean).slice(0, 2).map(s => s[0].toUpperCase()).join("").padEnd(2, "X").slice(0, 2);
+  BOTS.unshift({ handle, flags, score, color, init });
+  if (BOTS.length > 22) BOTS.pop();
+  renderBots();
+}
+
+function tickTrendsAndPlatforms() {
+  // Slightly jitter trend scores so "risk" can drift.
+  TRENDS.forEach(t => {
+    const delta = (Math.random() * 0.08 - 0.04);
+    t.score = clamp(t.score + delta, 0.04, 0.96);
+    if (t.score >= 0.66) { t.risk = "high"; t.color = "#f0506a"; }
+    else if (t.score >= 0.38) { t.risk = "medium"; t.color = "#f0b429"; }
+    else { t.risk = "low"; t.color = "#1de5b4"; }
+  });
+  // Keep sort by score descending feel.
+  TRENDS.sort((a, b) => b.score - a.score);
+  renderTrends(currentSearchTerm);
+
+  // Platform distribution: keep totals plausible and percent sums ~100.
+  const base = [55, 22, 13, 10];
+  const jittered = base.map(v => v + Math.round(Math.random() * 6 - 3));
+  const sum = jittered.reduce((a, b) => a + b, 0) || 1;
+  const pct = jittered.map(v => Math.max(2, Math.round((v / sum) * 100)));
+  // Normalize to 100.
+  let diff = 100 - pct.reduce((a, b) => a + b, 0);
+  pct[0] += diff;
+  PLATFORMS[0].pct = pct[0];
+  PLATFORMS[1].pct = pct[1];
+  PLATFORMS[2].pct = pct[2];
+  PLATFORMS[3].pct = pct[3];
+  renderPlatforms();
+}
+
 // ── Live sim ──────────────────────────────────────────────────
 function refreshData() {
   const t = document.getElementById("m-trends");
@@ -1392,6 +1528,15 @@ function refreshData() {
     renderAlerts();
   }
 
+  // Simulate "live stream" volume increasing over time.
+  liveStreamCount += Math.floor(Math.random() * 3); // 0–2 new stream events
+  updateSidebarBadges();
+
+  // Live updates across panels.
+  tickChart();
+  maybeCreateBot();
+  tickTrendsAndPlatforms();
+  updateRiskDistribution();
   updateRegionRiskScores();
 
   // Subtle refresh feedback
@@ -1514,6 +1659,8 @@ renderPipeline();
 renderPlatforms();
 renderRegionMap();
 buildChart();
+updateRiskDistribution();
+updateSidebarBadges();
 startAutoRefresh();
 </script>
 </body>
