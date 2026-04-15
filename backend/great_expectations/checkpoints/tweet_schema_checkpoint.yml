@@ -1,0 +1,13 @@
+name: tweet_schema_checkpoint
+config_version: 1.0
+class_name: Checkpoint
+run_name_template: "%Y%m%d-%H%M%S-tweet-validation"
+action_list:
+  - name: store_validation_result
+    action:
+      class_name: StoreValidationResultAction
+expectation_suite_name: tweet_suite
+batch_request:
+  datasource_name: tweet_datasource
+  data_connector_name: runtime_data_connector
+  data_asset_name: tweet_batch
