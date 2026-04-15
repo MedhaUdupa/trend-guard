@@ -610,6 +610,50 @@ canvas { width: 100% !important; }
 .dl-name { flex: 1; color: var(--muted2); }
 .dl-val { font-family: var(--mono); font-size: 11px; color: var(--text); }
 
+/* Region risk map */
+.region-map-wrap {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+.region-map-stage {
+  background: var(--ink3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+}
+.region-map-svg {
+  width: 100%;
+  height: 240px;
+}
+.region-dot {
+  stroke: rgba(255,255,255,0.3);
+  stroke-width: 1;
+  transition: all 0.25s;
+}
+.region-list {
+  background: var(--ink3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.region-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.region-row:last-child { border-bottom: none; }
+.region-name { font-size: 12px; color: var(--text); font-weight: 600; }
+.region-sub { font-size: 10px; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
+.region-score { font-size: 12px; font-family: var(--mono); font-weight: 600; }
+.region-score.high { color: var(--rose); }
+.region-score.med { color: var(--amber); }
+.region-score.low { color: var(--teal); }
+
 /* Back button */
 .back-btn {
   display: inline-flex;
@@ -667,7 +711,7 @@ canvas { width: 100% !important; }
         Live Stream
         <span class="nav-badge">12</span>
       </a>
-      <a href="#panel-trend-map" class="nav-item" data-scroll-target="panel-trend-map">
+      <a href="#panel-region-map" class="nav-item" data-scroll-target="panel-region-map">
         <div class="nav-icon">⊕</div>
         Trend Map
       </a>
@@ -908,6 +952,30 @@ canvas { width: 100% !important; }
         </div>
       </div>
 
+      <!-- Region risk map -->
+      <div class="card" id="panel-region-map" style="margin-top:16px">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Region Risk Map</div>
+            <div class="card-sub">Live region-wise fake/redundant activity risk</div>
+          </div>
+          <span class="ci-chip" style="padding:4px 9px;font-size:10px">● LIVE</span>
+        </div>
+        <div class="card-body">
+          <div class="region-map-wrap">
+            <div class="region-map-stage">
+              <svg class="region-map-svg" viewBox="0 0 640 280" xmlns="http://www.w3.org/2000/svg">
+                <rect x="0" y="0" width="640" height="280" rx="10" fill="rgba(5,6,10,0.4)"></rect>
+                <path d="M58 70l60-20 85 6 50-13 95 16 62 0 70 19 36 23-27 18-70 4-58 24-119 2-55 29-102-13-52-24-2-24z" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.12)"/>
+                <path d="M165 180l58-21 77 1 32 22-26 28-100 0-44-14z" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)"/>
+                <g id="region-dots-layer"></g>
+              </svg>
+            </div>
+            <div class="region-list" id="region-risk-list"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- Settings -->
       <div class="card" id="panel-settings" style="margin-top:16px">
         <div class="card-head">
@@ -1006,6 +1074,17 @@ const PLATFORMS = [
   { name: "Reddit",     count: "51K posts",  pct: 21, color: "#6b7bff" },
   { name: "Facebook",   count: "29K posts",  pct: 12, color: "#1de5b4" },
   { name: "Mastodon",   count: "12K posts",  pct: 5,  color: "#a78bfa" },
+];
+
+const REGIONS = [
+  { key: "north-america", name: "North America", sub: "US, CA, MX", x: 160, y: 105, risk: 72 },
+  { key: "south-america", name: "South America", sub: "BR, AR, CL", x: 230, y: 198, risk: 58 },
+  { key: "europe", name: "Europe", sub: "EU + UK", x: 322, y: 92, risk: 67 },
+  { key: "africa", name: "Africa", sub: "Sub-Saharan + North", x: 338, y: 162, risk: 49 },
+  { key: "middle-east", name: "Middle East", sub: "GCC + Levant", x: 382, y: 124, risk: 63 },
+  { key: "south-asia", name: "South Asia", sub: "IN, PK, BD", x: 430, y: 140, risk: 76 },
+  { key: "east-asia", name: "East Asia", sub: "CN, JP, KR", x: 487, y: 114, risk: 71 },
+  { key: "oceania", name: "Oceania", sub: "AU, NZ", x: 538, y: 214, risk: 46 },
 ];
 
 // ── Renderers ─────────────────────────────────────────────────
@@ -1125,6 +1204,48 @@ function renderPlatforms() {
   `).join('');
 }
 
+function riskColorByScore(score) {
+  if (score >= 70) return "#f0506a";
+  if (score >= 50) return "#f0b429";
+  return "#1de5b4";
+}
+
+function riskClassByScore(score) {
+  if (score >= 70) return "high";
+  if (score >= 50) return "med";
+  return "low";
+}
+
+function renderRegionMap() {
+  const dotsLayer = document.getElementById("region-dots-layer");
+  const list = document.getElementById("region-risk-list");
+  if (!dotsLayer || !list) return;
+
+  dotsLayer.innerHTML = REGIONS.map(region => {
+    const color = riskColorByScore(region.risk);
+    return `<circle class="region-dot" cx="${region.x}" cy="${region.y}" r="8" fill="${color}" fill-opacity="0.85"></circle>`;
+  }).join("");
+
+  const sorted = [...REGIONS].sort((a, b) => b.risk - a.risk);
+  list.innerHTML = sorted.map(region => `
+    <div class="region-row">
+      <div>
+        <div class="region-name">${region.name}</div>
+        <div class="region-sub">${region.sub}</div>
+      </div>
+      <div class="region-score ${riskClassByScore(region.risk)}">${region.risk}%</div>
+    </div>
+  `).join("");
+}
+
+function updateRegionRiskScores() {
+  REGIONS.forEach(region => {
+    const delta = Math.floor(Math.random() * 9) - 4;
+    region.risk = Math.max(28, Math.min(96, region.risk + delta));
+  });
+  renderRegionMap();
+}
+
 // ── Chart ─────────────────────────────────────────────────────
 function buildChart() {
   const labels = Array.from({length:24}, (_,i) => {
@@ -1181,6 +1302,8 @@ function refreshData() {
     renderAlerts();
   }
 
+  updateRegionRiskScores();
+
   // Subtle refresh feedback
   const btn = document.querySelector('.btn-refresh');
   btn.textContent = '✓ Updated';
@@ -1228,6 +1351,7 @@ const observedPanels = [
   'overview-top',
   'panel-live-alerts',
   'panel-trend-map',
+  'panel-region-map',
   'panel-bot-accounts',
   'panel-active-trends',
   'panel-platform-sources',
@@ -1297,6 +1421,7 @@ renderBots();
 renderAlerts();
 renderPipeline();
 renderPlatforms();
+renderRegionMap();
 buildChart();
 startAutoRefresh();
 </script>
