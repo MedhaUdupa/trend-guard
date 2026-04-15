@@ -428,8 +428,8 @@ body::before {
 .card-body { padding: 18px 20px; }
 
 /* Chart */
-.chart-wrap { height: 190px; position: relative; }
-canvas { width: 100% !important; }
+.chart-wrap { height: 240px; position: relative; }
+canvas { width: 100% !important; height: 100% !important; display: block; }
 
 /* Legend */
 .chart-legend {
@@ -532,7 +532,9 @@ canvas { width: 100% !important; }
 .alert-time { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-top: 4px; }
 
 /* Bot meter */
-.bot-list { display: flex; flex-direction: column; gap: 13px; }
+.bot-list { display: flex; flex-direction: column; gap: 13px; max-height: 260px; overflow: auto; padding-right: 6px; }
+.bot-list::-webkit-scrollbar { width: 3px; }
+.bot-list::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 .bot-row { display: flex; align-items: center; gap: 11px; }
 .bot-av {
   width: 34px; height: 34px;
@@ -772,7 +774,7 @@ canvas { width: 100% !important; }
       <a href="#panel-bot-accounts" class="nav-item" data-scroll-target="panel-bot-accounts">
         <div class="nav-icon">◉</div>
         Bot Accounts
-        <span class="nav-badge">3</span>
+        <span class="nav-badge" id="bot-count-badge">3</span>
       </a>
       <a href="#panel-active-trends" class="nav-item" data-scroll-target="panel-active-trends">
         <div class="nav-icon">⋈</div>
@@ -1120,6 +1122,16 @@ const BOTS = [
   { handle: "@crypto_signal99", flags: "extreme_follow_ratio",          score: 0.67, color: "#f0b429", init: "CS" },
   { handle: "@user_8842991",    flags: "incomplete_profile",            score: 0.52, color: "#f0b429", init: "U8" },
   { handle: "@sarah_techblog",  flags: "no flags detected",             score: 0.09, color: "#1de5b4", init: "ST" },
+  { handle: "@daily_digest_ai", flags: "recent_username_change · link_farm", score: 0.88, color: "#f0506a", init: "DD" },
+  { handle: "@trend_blaster",   flags: "burst_posts · repeated_hashtags",    score: 0.79, color: "#f0506a", init: "TB" },
+  { handle: "@civic_newsroom",  flags: "coord_amplification · low_entropy",  score: 0.73, color: "#f0506a", init: "CN" },
+  { handle: "@reply_ring_07",   flags: "reply_swarm · shared_media_hash",    score: 0.69, color: "#f0b429", init: "RR" },
+  { handle: "@promo_matrix",    flags: "suspicious_domains · follow_churn",  score: 0.64, color: "#f0b429", init: "PM" },
+  { handle: "@fresh_accountz",  flags: "account_age_lt_7d · no_bio",         score: 0.61, color: "#f0b429", init: "FA" },
+  { handle: "@meme_reposterx",  flags: "repost_heavy · duplicate_captions",  score: 0.58, color: "#f0b429", init: "MR" },
+  { handle: "@auto_threader",   flags: "thread_spam · uniform_intervals",    score: 0.55, color: "#f0b429", init: "AT" },
+  { handle: "@local_updates",   flags: "mixed signals · borderline",         score: 0.43, color: "#f0b429", init: "LU" },
+  { handle: "@quiet_reader",    flags: "no flags detected",                 score: 0.12, color: "#1de5b4", init: "QR" },
 ];
 
 const ALERTS = [
@@ -1231,6 +1243,8 @@ function setSettingsStatus(message) {
 }
 
 function renderBots() {
+  const badge = document.getElementById("bot-count-badge");
+  if (badge) badge.textContent = String(BOTS.length);
   document.getElementById("bot-list").innerHTML = BOTS.map(b => `
     <div class="bot-row">
       <div class="bot-av" style="background:${b.color}18;color:${b.color}">${b.init}</div>
