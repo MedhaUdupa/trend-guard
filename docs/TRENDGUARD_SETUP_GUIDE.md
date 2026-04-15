@@ -1,11 +1,11 @@
-# TrendGuard — Complete Setup Guide
+# TrendGuard - Complete Setup Guide
 ### Social Media Data Integrity Platform
 
 ---
 
 ## Overview
 
-TrendGuard is a pipeline that analyzes social media metadata to detect coordinated bot activity and misinformation trends. This guide walks you through the full setup — from local VS Code development to a production-grade app with live data.
+TrendGuard is a pipeline that analyzes social media metadata to detect coordinated bot activity and misinformation trends. This guide walks you through the full setup - from local VS Code development to a production-grade app with live data.
 
 ---
 
@@ -25,7 +25,7 @@ TrendGuard is a pipeline that analyzes social media metadata to detect coordinat
 
 ---
 
-## Phase 1 — Local Development in VS Code
+## Phase 1 - Local Development in VS Code
 
 ### Step 1: Prerequisites
 
@@ -49,50 +49,50 @@ Install VS Code extensions:
 
 ```
 trendguard/
-├── backend/
-│   ├── app/
-│   │   ├── main.py              # FastAPI entry point
-│   │   ├── routers/
-│   │   │   ├── trends.py        # Trend detection endpoints
-│   │   │   ├── analytics.py     # Dashboard data endpoints
-│   │   │   └── health.py        # Health/metrics endpoint
-│   │   ├── services/
-│   │   │   ├── bot_detector.py  # ML bot detection logic
-│   │   │   ├── ingestor.py      # Social media API ingestor
-│   │   │   └── validator.py     # Great Expectations wrapper
-│   │   ├── models/
-│   │   │   ├── schemas.py       # Pydantic schemas (input validation)
-│   │   │   └── database.py      # SQLAlchemy models
-│   │   └── middleware/
-│   │       ├── rate_limiter.py  # IP + user rate limiting
-│   │       └── sanitizer.py     # Input sanitization
-│   ├── tests/
-│   ├── great_expectations/      # GE config & checkpoints
-│   ├── requirements.txt
-│   └── Dockerfile
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── Dashboard.jsx
-│   │   │   ├── TrendMap.jsx
-│   │   │   ├── BotScore.jsx
-│   │   │   └── AlertFeed.jsx
-│   │   ├── hooks/
-│   │   │   └── useWebSocket.js  # Live data hook
-│   │   └── App.jsx
-│   ├── package.json
-│   └── Dockerfile
-├── monitoring/
-│   ├── prometheus.yml
-│   └── grafana/
-│       └── dashboards/
-│           └── trendguard.json
-├── .github/
-│   └── workflows/
-│       └── ci-cd.yml
-├── docker-compose.yml
-├── docker-compose.prod.yml
-└── .env.example
++-- backend/
+|   +-- app/
+|   |   +-- main.py              # FastAPI entry point
+|   |   +-- routers/
+|   |   |   +-- trends.py        # Trend detection endpoints
+|   |   |   +-- analytics.py     # Dashboard data endpoints
+|   |   |   +-- health.py        # Health/metrics endpoint
+|   |   +-- services/
+|   |   |   +-- bot_detector.py  # ML bot detection logic
+|   |   |   +-- ingestor.py      # Social media API ingestor
+|   |   |   +-- validator.py     # Great Expectations wrapper
+|   |   +-- models/
+|   |   |   +-- schemas.py       # Pydantic schemas (input validation)
+|   |   |   +-- database.py      # SQLAlchemy models
+|   |   +-- middleware/
+|   |       +-- rate_limiter.py  # IP + user rate limiting
+|   |       +-- sanitizer.py     # Input sanitization
+|   +-- tests/
+|   +-- great_expectations/      # GE config & checkpoints
+|   +-- requirements.txt
+|   +-- Dockerfile
++-- frontend/
+|   +-- src/
+|   |   +-- components/
+|   |   |   +-- Dashboard.jsx
+|   |   |   +-- TrendMap.jsx
+|   |   |   +-- BotScore.jsx
+|   |   |   +-- AlertFeed.jsx
+|   |   +-- hooks/
+|   |   |   +-- useWebSocket.js  # Live data hook
+|   |   +-- App.jsx
+|   +-- package.json
+|   +-- Dockerfile
++-- monitoring/
+|   +-- prometheus.yml
+|   +-- grafana/
+|       +-- dashboards/
+|           +-- trendguard.json
++-- .github/
+|   +-- workflows/
+|       +-- ci-cd.yml
++-- docker-compose.yml
++-- docker-compose.prod.yml
++-- .env.example
 ```
 
 ### Step 3: Backend Setup
@@ -108,7 +108,7 @@ pip install fastapi uvicorn sqlalchemy asyncpg redis \
   tweepy httpx python-dotenv bleach
 ```
 
-**`backend/app/main.py`** — core FastAPI app with security:
+**`backend/app/main.py`** - core FastAPI app with security:
 
 ```python
 from fastapi import FastAPI, Request
@@ -150,7 +150,7 @@ app.include_router(analytics.router, prefix="/api/v1/analytics")
 app.include_router(health.router, prefix="/api/v1/health")
 ```
 
-**`backend/app/models/schemas.py`** — strict Pydantic validation:
+**`backend/app/models/schemas.py`** - strict Pydantic validation:
 
 ```python
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -192,7 +192,7 @@ class AnalyticsRequest(BaseModel):
     window_hours: int = Field(24, ge=1, le=168)
 ```
 
-**`backend/app/middleware/rate_limiter.py`** — IP + user-aware limiter:
+**`backend/app/middleware/rate_limiter.py`** - IP + user-aware limiter:
 
 ```python
 from slowapi import Limiter
@@ -211,7 +211,7 @@ def get_user_or_ip(request: Request) -> str:
 # async def get_trends(...):
 ```
 
-**`backend/app/middleware/sanitizer.py`** — request sanitization:
+**`backend/app/middleware/sanitizer.py`** - request sanitization:
 
 ```python
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -325,7 +325,7 @@ def calculate_bot_score(meta: AccountMetadata) -> BotScore:
 
 ### Step 5: Social Media Data Ingestion
 
-**`backend/app/services/ingestor.py`** — Twitter/X API v2 stream:
+**`backend/app/services/ingestor.py`** - Twitter/X API v2 stream:
 
 ```python
 import tweepy
@@ -456,7 +456,7 @@ def validate_tweet_batch(tweets: list[dict]) -> bool:
 
 ---
 
-## Phase 2 — Frontend Dashboard
+## Phase 2 - Frontend Dashboard
 
 ### Step 7: React + Vite Setup
 
@@ -470,10 +470,10 @@ npx tailwindcss init -p
 
 The dashboard UI (see the live demo above) is already built as a reference. Key components:
 
-- **`Dashboard.jsx`** — main layout with metric cards, trend table, bot score feed
-- **`useWebSocket.js`** — custom hook connecting to `/ws/live-trends`
-- **`TrendMap.jsx`** — recharts AreaChart for volume over time
-- **`AlertFeed.jsx`** — real-time flagged accounts stream
+- **`Dashboard.jsx`** - main layout with metric cards, trend table, bot score feed
+- **`useWebSocket.js`** - custom hook connecting to `/ws/live-trends`
+- **`TrendMap.jsx`** - recharts AreaChart for volume over time
+- **`AlertFeed.jsx`** - real-time flagged accounts stream
 
 **`frontend/src/hooks/useWebSocket.js`**:
 
@@ -509,7 +509,7 @@ export function useLiveData(endpoint) {
 
 ---
 
-## Phase 3 — Docker + Monitoring
+## Phase 3 - Docker + Monitoring
 
 ### Step 8: Docker Compose
 
@@ -619,7 +619,7 @@ docker compose up -d
 
 ---
 
-## Phase 4 — CI/CD Pipeline
+## Phase 4 - CI/CD Pipeline
 
 ### Step 9: GitHub Actions
 
@@ -701,12 +701,12 @@ jobs:
       - name: Deploy to production
         run: |
           # SSH into your VPS or use cloud deployment
-          echo "Deploy step — customize for your hosting"
+          echo "Deploy step - customize for your hosting"
 ```
 
 ---
 
-## Phase 5 — Security Hardening (OWASP)
+## Phase 5 - Security Hardening (OWASP)
 
 ### Step 10: API Key Management
 
@@ -717,7 +717,7 @@ jobs:
 DB_PASSWORD=changeme_strong_password_here
 REDIS_PASSWORD=changeme_strong_redis_pass
 
-# Social APIs — obtain from developer portals
+# Social APIs - obtain from developer portals
 TWITTER_BEARER_TOKEN=
 REDDIT_CLIENT_ID=
 REDDIT_CLIENT_SECRET=
@@ -766,8 +766,8 @@ dist/
 In Grafana, import the dashboard JSON from `monitoring/grafana/dashboards/trendguard.json`. It tracks:
 
 - **Bot detection accuracy** over time (custom metric: `trendguard_bot_detection_accuracy`)
-- **False positive rate** — legitimate users flagged
-- **API schema validation failures** — alerts when data shape changes
+- **False positive rate** - legitimate users flagged
+- **API schema validation failures** - alerts when data shape changes
 - **Request latency** by endpoint
 - **Rate limit hits** per hour
 
@@ -788,11 +788,11 @@ schema_failures.inc()
 
 ---
 
-## Phase 6 — Deploying to Production
+## Phase 6 - Deploying to Production
 
 ### Option A: VPS (cheapest, most control)
 
-**Recommended for start:** DigitalOcean Droplet or Hetzner Cloud ($6–12/month)
+**Recommended for start:** DigitalOcean Droplet or Hetzner Cloud ($6-12/month)
 
 ```bash
 # On your server
@@ -858,26 +858,26 @@ cp .env.example .env
 
 docker compose up -d
 
-# Frontend → http://localhost:5173
-# API docs → http://localhost:8000/docs
-# Grafana  → http://localhost:3000 (admin / your GRAFANA_PASSWORD)
+# Frontend -> http://localhost:5173
+# API docs -> http://localhost:8000/docs
+# Grafana  -> http://localhost:3000 (admin / your GRAFANA_PASSWORD)
 ```
 
 ---
 
 ## OWASP Top 10 Compliance Checklist
 
-- [x] **A01 Broken Access Control** — JWT auth, role-based endpoints
-- [x] **A02 Cryptographic Failures** — HTTPS only, secrets in env vars, bcrypt passwords
-- [x] **A03 Injection** — Pydantic schema validation, parameterized SQL, bleach sanitization
-- [x] **A04 Insecure Design** — Fail-safe defaults, least privilege DB user
-- [x] **A05 Security Misconfiguration** — Security headers middleware, docs disabled in prod
-- [x] **A06 Vulnerable Components** — Dependabot / `pip-audit` in CI
-- [x] **A07 Auth Failures** — Rate limiting on auth, JWT expiry, refresh tokens
-- [x] **A08 Software Integrity** — GitHub Actions checksums, Docker image scanning
-- [x] **A09 Logging Failures** — Structured logs, Prometheus metrics, Grafana alerts
-- [x] **A10 SSRF** — Allowlisted external domains only, no user-controlled URLs
+- [x] **A01 Broken Access Control** - JWT auth, role-based endpoints
+- [x] **A02 Cryptographic Failures** - HTTPS only, secrets in env vars, bcrypt passwords
+- [x] **A03 Injection** - Pydantic schema validation, parameterized SQL, bleach sanitization
+- [x] **A04 Insecure Design** - Fail-safe defaults, least privilege DB user
+- [x] **A05 Security Misconfiguration** - Security headers middleware, docs disabled in prod
+- [x] **A06 Vulnerable Components** - Dependabot / `pip-audit` in CI
+- [x] **A07 Auth Failures** - Rate limiting on auth, JWT expiry, refresh tokens
+- [x] **A08 Software Integrity** - GitHub Actions checksums, Docker image scanning
+- [x] **A09 Logging Failures** - Structured logs, Prometheus metrics, Grafana alerts
+- [x] **A10 SSRF** - Allowlisted external domains only, no user-controlled URLs
 
 ---
 
-*TrendGuard — built for data integrity, designed for scale.*
+*TrendGuard - built for data integrity, designed for scale.*

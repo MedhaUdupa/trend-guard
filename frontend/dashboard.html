@@ -621,11 +621,24 @@ canvas { width: 100% !important; }
   background: var(--ink3);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 12px;
+  padding: 10px;
+  position: relative;
+  overflow: hidden;
 }
-.region-map-svg {
+.region-map-img {
   width: 100%;
   height: 240px;
+  object-fit: cover;
+  border-radius: 10px;
+  opacity: 0.9;
+  display: block;
+}
+.region-map-svg {
+  position: absolute;
+  inset: 10px;
+  width: calc(100% - 20px);
+  height: 240px;
+  pointer-events: none;
 }
 .region-dot {
   stroke: rgba(255,255,255,0.3);
@@ -653,6 +666,30 @@ canvas { width: 100% !important; }
 .region-score.high { color: var(--rose); }
 .region-score.med { color: var(--amber); }
 .region-score.low { color: var(--teal); }
+
+/* Data validation panel */
+.validation-list { display: flex; flex-direction: column; gap: 8px; }
+.validation-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  background: var(--ink3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 12px;
+}
+.validation-name { color: var(--text); }
+.validation-state {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+.validation-state.pass { color: var(--teal); background: var(--teal-dim); border-color: rgba(29,229,180,0.2); }
+.validation-state.warn { color: var(--amber); background: var(--amber-dim); border-color: rgba(240,180,41,0.2); }
 
 /* Back button */
 .back-btn {
@@ -736,7 +773,7 @@ canvas { width: 100% !important; }
         <div class="nav-icon">⟳</div>
         CI/CD Pipeline
       </a>
-      <a href="#panel-ci-cd" class="nav-item" data-scroll-target="panel-ci-cd">
+      <a href="#panel-data-validation" class="nav-item" data-scroll-target="panel-data-validation">
         <div class="nav-icon">✦</div>
         Data Validation
       </a>
@@ -965,13 +1002,29 @@ canvas { width: 100% !important; }
           <div class="region-map-wrap">
             <div class="region-map-stage">
               <svg class="region-map-svg" viewBox="0 0 640 280" xmlns="http://www.w3.org/2000/svg">
-                <rect x="0" y="0" width="640" height="280" rx="10" fill="rgba(5,6,10,0.4)"></rect>
-                <path d="M58 70l60-20 85 6 50-13 95 16 62 0 70 19 36 23-27 18-70 4-58 24-119 2-55 29-102-13-52-24-2-24z" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.12)"/>
-                <path d="M165 180l58-21 77 1 32 22-26 28-100 0-44-14z" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.08)"/>
                 <g id="region-dots-layer"></g>
               </svg>
+              <img class="region-map-img" src="world-map-outline.png" alt="World map outline">
             </div>
             <div class="region-list" id="region-risk-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data validation -->
+      <div class="card" id="panel-data-validation" style="margin-top:16px">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Data Validation</div>
+            <div class="card-sub">Schema checks and data quality controls</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="validation-list">
+            <div class="validation-item"><span class="validation-name">Schema keys present</span><span class="validation-state pass">PASS</span></div>
+            <div class="validation-item"><span class="validation-name">Null ratio threshold</span><span class="validation-state pass">PASS</span></div>
+            <div class="validation-item"><span class="validation-name">Duplicate post ID threshold</span><span class="validation-state warn">WATCH</span></div>
+            <div class="validation-item"><span class="validation-name">Timestamp freshness window</span><span class="validation-state pass">PASS</span></div>
           </div>
         </div>
       </div>
@@ -1356,6 +1409,7 @@ const observedPanels = [
   'panel-active-trends',
   'panel-platform-sources',
   'panel-ci-cd',
+  'panel-data-validation',
   'panel-risk-distribution',
   'panel-settings',
 ];
