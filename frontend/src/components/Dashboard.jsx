@@ -1,4 +1,7 @@
 import { useLiveData } from "../hooks/useWebSocket";
+import TrendMap from "./TrendMap";
+import AlertFeed from "./AlertFeed";
+import BotScore from "./BotScore";
 
 const TRENDS = [
   { keyword: "#AIGenerated", volume: "48.2K", risk: "high", score: 87 },
@@ -10,10 +13,10 @@ const TRENDS = [
 ];
 
 const BOTS = [
-  { handle: "@n3ws_b0t_911", flags: "new_account · superhuman_rate", score: 94 },
-  { handle: "@info_spreader", flags: "high_text_sim · no_followers", score: 81 },
-  { handle: "@crypto_signal99", flags: "extreme_follow_ratio", score: 67 },
-  { handle: "@user_8842991", flags: "incomplete_profile", score: 52 },
+  { handle: "@n3ws_b0t_911", flags: "new_account · superhuman_rate", score: 0.94 },
+  { handle: "@info_spreader", flags: "high_text_sim · no_followers", score: 0.81 },
+  { handle: "@crypto_signal99", flags: "extreme_follow_ratio", score: 0.67 },
+  { handle: "@user_8842991", flags: "incomplete_profile", score: 0.52 },
 ];
 
 const PLATFORMS = [
@@ -21,6 +24,16 @@ const PLATFORMS = [
   { name: "Reddit", posts: "51K posts", pct: 21 },
   { name: "Facebook", posts: "29K posts", pct: 12 },
   { name: "Mastodon", posts: "12K posts", pct: 5 },
+];
+
+const CHART_DATA = [
+  { hour: "00:00", organic: 400, bot: 240 },
+  { hour: "04:00", organic: 300, bot: 221 },
+  { hour: "08:00", organic: 200, bot: 229 },
+  { hour: "12:00", organic: 278, bot: 200 },
+  { hour: "16:00", organic: 189, bot: 229 },
+  { hour: "20:00", organic: 239, bot: 200 },
+  { hour: "23:59", organic: 349, bot: 210 },
 ];
 
 export default function Dashboard() {
@@ -56,6 +69,7 @@ export default function Dashboard() {
           </span>
         </header>
 
+        {/* Key Metrics */}
         <section className="tg-metrics">
           <article className="tg-card metric">
             <h3>Trends Tracked</h3>
@@ -79,6 +93,18 @@ export default function Dashboard() {
           </article>
         </section>
 
+        {/* Trend Map Chart */}
+        <section className="tg-grid-two" style={{ gridColumn: "1 / -1" }}>
+          <TrendMap data={CHART_DATA} />
+        </section>
+
+        {/* Live Alerts & Bot Score */}
+        <section className="tg-grid-two">
+          <AlertFeed alerts={alerts.length > 0 ? alerts : []} connected={connected} />
+          <BotScore bots={BOTS} />
+        </section>
+
+        {/* Active Trends & Platforms */}
         <section className="tg-grid-two">
           <article className="tg-card">
             <h2>Active Trends</h2>
@@ -108,36 +134,6 @@ export default function Dashboard() {
                 ))}
               </tbody>
             </table>
-          </article>
-
-          <article className="tg-card">
-            <h2>Live Alerts</h2>
-            <ul className="feed">
-              {alerts.length === 0 && <li>No live alerts yet</li>}
-              {alerts.map((alert) => (
-                <li key={alert.id}>
-                  <span>{alert.keyword}</span>
-                  <strong>{Math.round((alert.score ?? 0) * 100)}%</strong>
-                </li>
-              ))}
-            </ul>
-          </article>
-        </section>
-
-        <section className="tg-grid-two">
-          <article className="tg-card">
-            <h2>Bot Score Meter</h2>
-            <ul className="feed">
-              {BOTS.map((bot) => (
-                <li key={bot.handle}>
-                  <div>
-                    <div>{bot.handle}</div>
-                    <small>{bot.flags}</small>
-                  </div>
-                  <strong>{bot.score}%</strong>
-                </li>
-              ))}
-            </ul>
           </article>
 
           <article className="tg-card">
