@@ -2,6 +2,26 @@
   font-family: "Syne", Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   color: #e8e9f0;
   background: #08090d;
+
+  /* Landing page variables */
+  --ink: #05060a;
+  --ink2: #0b0d14;
+  --ink3: #10131e;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.11);
+  --text: #dde0ee;
+  --muted: #5c607a;
+  --muted2: #8a8fa8;
+  --indigo: #4f5ff0;
+  --indigo2: #6b7bff;
+  --indigo-glow: rgba(79,95,240,0.18);
+  --teal: #1de5b4;
+  --teal-dim: rgba(29,229,180,0.1);
+  --rose: #f0506a;
+  --amber: #f0b429;
+  --display: 'Clash Display', sans-serif;
+  --body: 'Instrument Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
 }
 
 * {
