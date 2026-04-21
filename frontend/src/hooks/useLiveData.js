@@ -2,13 +2,12 @@ import { useEffect, useState } from "react";
 
 export function useLiveData(endpoint) {
   const [data, setData] = useState([]);
-  const [connected, setConnected] = useState(true); // Always connected for polling
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const base = import.meta.env.VITE_API_URL || "/api/v1/trends";
+        const base = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1/trends";
         const url = `${base}${endpoint}`;
         const response = await fetch(url);
         const result = await response.json();
@@ -25,5 +24,5 @@ export function useLiveData(endpoint) {
     return () => clearInterval(interval);
   }, [endpoint]);
 
-  return { data, connected, loading };
+  return { data, loading };
 }

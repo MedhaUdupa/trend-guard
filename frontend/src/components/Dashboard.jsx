@@ -24,7 +24,7 @@ const PLATFORMS = [
 ];
 
 export default function Dashboard() {
-  const { data, connected } = useLiveData("/ws/live-trends");
+  const { data, connected } = useLiveData("/live");
   const alerts = data.slice(0, 4);
 
   return (

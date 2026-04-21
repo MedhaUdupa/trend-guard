@@ -53,3 +53,37 @@ async def get_trends(
         scored.append({**row, "score": bot_score.score, "flags": bot_score.flags})
 
     return {"count": len(scored), "items": scored}
+
+
+@router.get("/live")
+async def get_live_trends() -> dict:
+    # Simulate live trends data
+    import random
+    from datetime import datetime, timezone
+
+    live_data = [
+        {
+            "id": f"live-{i+1}",
+            "keyword": TREND_DATA[i % len(TREND_DATA)]["keyword"],
+            "score": round(random.uniform(0.5, 0.9), 2),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        for i in range(10)
+    ]
+    return {"data": live_data}
+
+@router.get("/live")
+async def get_live_trends() -> dict:
+    import random
+    from datetime import datetime, timezone
+    live_data = [
+        {
+            "id": f"live-{i+1}",
+            "keyword": TREND_DATA[i % len(TREND_DATA)]["keyword"],
+            "score": round(random.uniform(0.5, 0.9), 2),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        for i in range(10)
+    ]
+    return {"data": live_data}
+

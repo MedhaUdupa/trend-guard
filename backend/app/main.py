@@ -2,7 +2,7 @@ import asyncio
 import os
 from datetime import datetime, timezone
 
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from prometheus_fastapi_instrumentator import Instrumentator
@@ -23,7 +23,7 @@ app = FastAPI(
 
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["trendguard.io", "localhost", "127.0.0.1", "*.localhost", "testserver"],
+    allowed_hosts=["trendguard.io", "localhost", "127.0.0.1", "*.localhost", "testserver", "*.vercel.app"],
 )
 app.add_middleware(
     CORSMiddleware,
@@ -40,23 +40,3 @@ Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 app.include_router(trends.router, prefix="/api/v1/trends")
 app.include_router(analytics.router, prefix="/api/v1/analytics")
 app.include_router(health.router, prefix="/api/v1/health")
-
-
-@app.websocket("/ws/live-trends")
-async def live_trends_socket(websocket: WebSocket) -> None:
-    await websocket.accept()
-    counter = 0
-    try:
-        while True:
-            counter += 1
-            await websocket.send_json(
-                {
-                    "id": f"live-{counter}",
-                    "keyword": "#AIGenerated" if counter % 2 else "#BreakingNews",
-                    "score": round(0.5 + ((counter % 10) / 20), 2),
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                }
-            )
-            await asyncio.sleep(2)
-    except Exception:
-        await websocket.close()

@@ -449,3 +449,18 @@ Best for: publicly accessible API + UI.
 - Cold starts can make first request slow.
 - Usage/storage limits apply.
 - For production reliability, a paid plan is usually needed.
+
+## Deployment on Vercel
+
+1. Push this repository to GitHub.
+
+2. Go to [Vercel](https://vercel.com) and sign in with your GitHub account.
+
+3. Click "New Project" and import your GitHub repository.
+
+4. Vercel will automatically detect the configuration from `vercel.json` and deploy both frontend and backend.
+
+5. The live link will be provided by Vercel after deployment.
+
+Note: WebSockets have been replaced with HTTP polling for Vercel compatibility.
+
